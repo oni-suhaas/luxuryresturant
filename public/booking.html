@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Restaurant Reservation</title>
+
+<style>
+
+body{
+background:#111;
+color:white;
+font-family:Arial;
+margin:0;
+}
+
+.container{
+display:flex;
+gap:40px;
+padding:40px;
+}
+
+.tables-section{width:50%;}
+
+.form-section{
+width:50%;
+background:#1c1c1c;
+padding:20px;
+border-radius:10px;
+border:1px solid gold;
+}
+
+.restaurant{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:20px;
+}
+
+.table{
+width:80px;
+height:60px;
+background:#333;
+border:2px solid gold;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+border-radius:5px;
+}
+
+.couple{border-color:pink;}
+.window{border-color:skyblue;}
+.family{border-color:orange;}
+.vip{border-color:purple;}
+
+.selected{background:green;}
+.booked{background:red;cursor:not-allowed;}
+
+input,select{
+width:90%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+padding:10px 20px;
+background:gold;
+border:none;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="tables-section">
+
+<h2>Restaurant Tables</h2>
+
+<h3>❤️ Couple Area</h3>
+<div class="restaurant">
+<div class="table couple" data-table="C1">❤️C1</div>
+<div class="table couple" data-table="C2">❤️C2</div>
+<div class="table couple" data-table="C3">❤️C3</div>
+<div class="table couple" data-table="C4">❤️C4</div>
+<div class="table couple" data-table="C5">❤️C5</div>
+</div>
+
+<h3>🪟 Window Area</h3>
+<div class="restaurant">
+<div class="table window" data-table="W1">🪟W1</div>
+<div class="table window" data-table="W2">🪟W2</div>
+<div class="table window" data-table="W3">🪟W3</div>
+<div class="table window" data-table="W4">🪟W4</div>
+<div class="table window" data-table="W5">🪟W5</div>
+</div>
+
+<h3>👨‍👩‍👧 Family Area</h3>
+<div class="restaurant">
+<div class="table family" data-table="F1">👨‍👩‍👧F1</div>
+<div class="table family" data-table="F2">👨‍👩‍👧F2</div>
+<div class="table family" data-table="F3">👨‍👩‍👧F3</div>
+<div class="table family" data-table="F4">👨‍👩‍👧F4</div>
+<div class="table family" data-table="F5">👨‍👩‍👧F5</div>
+</div>
+
+<h3>⭐ VIP Area</h3>
+<div class="restaurant">
+<div class="table vip" data-table="V1">⭐V1</div>
+<div class="table vip" data-table="V2">⭐V2</div>
+<div class="table vip" data-table="V3">⭐V3</div>
+<div class="table vip" data-table="V4">⭐V4</div>
+<div class="table vip" data-table="V5">⭐V5</div>
+</div>
+
+</div>
+
+
+<div class="form-section">
+
+<h2>Book Table</h2>
+
+<form id="bookingForm">
+
+<input type="text" id="name" placeholder="Name" required>
+
+<input type="text" id="mobile" placeholder="Mobile Number" required>
+
+<input type="number" id="guests" placeholder="Guests" required>
+
+<label>Date</label>
+<input type="date" id="date" required>
+
+<label>Time</label>
+<select id="time"></select>
+
+<button type="submit">Reserve</button>
+
+</form>
+
+<br>
+
+<a href="admin-login.html">
+<button>Admin Login</button>
+</a>
+
+</div>
+
+</div>
+
+
+<script>
+
+let selectedTable=""
+let tables=document.querySelectorAll(".table")
+
+tables.forEach(t=>{
+
+t.addEventListener("click",function(){
+
+if(t.classList.contains("booked")){
+alert("Table already booked")
+return
+}
+
+tables.forEach(x=>x.classList.remove("selected"))
+
+t.classList.add("selected")
+
+selectedTable=t.dataset.table
+
+})
+
+})
+
+
+// generate time slots
+let timeSelect=document.getElementById("time")
+
+for(let hour=9;hour<=23;hour++){
+
+let h=hour>12?hour-12:hour
+let ampm=hour>=12?"PM":"AM"
+
+let option=document.createElement("option")
+
+option.textContent=h+":00 "+ampm
+option.value=h+":00 "+ampm
+
+timeSelect.appendChild(option)
+
+}
+
+
+// disable past dates
+let today=new Date().toISOString().split("T")[0]
+
+document.getElementById("date").setAttribute("min",today)
+
+
+// CHECK TABLE AVAILABILITY FROM DATABASE
+function checkAvailability(){
+
+let date=document.getElementById("date").value
+let time=document.getElementById("time").value
+
+if(!date || !time) return
+
+fetch(`/api/booked-tables?date=${date}&time=${time}`)
+.then(res=>res.json())
+.then(bookedTables=>{
+
+tables.forEach(t=>{
+
+if(bookedTables.includes(t.dataset.table)){
+t.classList.add("booked")
+}
+else{
+t.classList.remove("booked")
+}
+
+})
+
+})
+
+}
+
+document.getElementById("date").addEventListener("change",checkAvailability)
+document.getElementById("time").addEventListener("change",checkAvailability)
+
+
+// SAVE BOOKING
+document.getElementById("bookingForm").addEventListener("submit",function(e){
+
+e.preventDefault()
+
+if(selectedTable==""){
+alert("Select table")
+return
+}
+
+let booking={
+
+name:document.getElementById("name").value,
+mobile:document.getElementById("mobile").value,
+guests:document.getElementById("guests").value,
+date:document.getElementById("date").value,
+time:document.getElementById("time").value,
+tableNumber:selectedTable
+
+}
+
+fetch("/api/book",{
+
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(booking)
+
+})
+
+.then(res=>res.json())
+.then(data=>{
+
+if(data.message && data.message.includes("already booked")){
+alert("❌ Table already booked")
+return
+}
+
+alert("✅ Reservation Confirmed!")
+
+document.getElementById("bookingForm").reset()
+
+tables.forEach(x=>x.classList.remove("selected"))
+
+})
+
+})
+
+</script>
+
+</body>
+</html>
