@@ -12,10 +12,10 @@ app.use(express.static("public"));
 
 
 // -------------------------
-// MongoDB Connection
+// MongoDB Atlas Connection
 // -------------------------
-mongoose.connect("mongodb://127.0.0.1:27017/restaurantDB")
-.then(() => console.log("✅ MongoDB Connected"))
+mongoose.connect("mongodb+srv://admin:admin123@cluster0.bgfqpnd.mongodb.net/restaurantDB?retryWrites=true&w=majority")
+.then(() => console.log("✅ MongoDB Atlas Connected"))
 .catch(err => console.log("❌ MongoDB Connection Error:", err));
 
 
@@ -24,7 +24,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/restaurantDB")
 // -------------------------
 const bookingSchema = new mongoose.Schema({
 
-  reservationId: String,   // NEW FIELD
+  reservationId: String,
 
   name: String,
   mobile: String,
@@ -47,7 +47,6 @@ const Booking = mongoose.model("Booking", bookingSchema);
 
 // -------------------------
 // SAVE BOOKING
-// (Prevent Double Booking)
 // -------------------------
 app.post("/api/book", async (req, res) => {
 
@@ -55,7 +54,6 @@ app.post("/api/book", async (req, res) => {
 
     const { date, time, tableNumber } = req.body;
 
-    // Check if same table already booked
     const existingBooking = await Booking.findOne({
       date: date,
       time: time,
@@ -68,10 +66,8 @@ app.post("/api/book", async (req, res) => {
       });
     }
 
-    // COUNT BOOKINGS
     const count = await Booking.countDocuments();
 
-    // CREATE RESERVATION ID
     const reservationId = "RES-" + (1001 + count);
 
     const booking = new Booking({
@@ -100,7 +96,6 @@ app.post("/api/book", async (req, res) => {
 
 // -------------------------
 // GET ALL BOOKINGS
-// (Admin Dashboard)
 // -------------------------
 app.get("/api/bookings", async (req, res) => {
 
