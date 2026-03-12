@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Dashboard</title>
+
+<style>
+
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+table{
+width:90%;
+margin:auto;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid gold;
+padding:10px;
+}
+
+button{
+background:red;
+color:white;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Reservation Dashboard</h1>
+
+<table>
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Mobile</th>
+<th>Guests</th>
+<th>Date</th>
+<th>Time</th>
+<th>Table</th>
+<th>Delete</th>
+</tr>
+
+</thead>
+
+<tbody id="bookingTable"></tbody>
+
+</table>
+
+<script>
+
+// Load bookings from backend
+function loadBookings(){
+
+fetch("/api/bookings")
+.then(res => res.json())
+.then(data => {
+
+let table = document.getElementById("bookingTable")
+
+table.innerHTML = ""
+
+data.forEach(b => {
+
+table.innerHTML += `
+
+<tr>
+
+<td>${b._id}</td>
+<td>${b.name}</td>
+<td>${b.mobile}</td>
+<td>${b.guests}</td>
+<td>${b.date}</td>
+<td>${b.time}</td>
+<td>${b.tableNumber}</td>
+
+<td>
+<button onclick="deleteBooking('${b.reservationId}')">Delete</button>
+</td>
+
+</tr>
+
+`
+
+})
+
+})
+
+}
+
+// Delete booking
+function deleteBooking(id){
+
+if(confirm("Delete reservation?")){
+
+fetch("/api/bookings/"+id,{
+method:"DELETE"
+})
+.then(res => res.json())
+.then(data => {
+
+alert("Booking Deleted")
+
+loadBookings()
+
+})
+
+}
+
+}
+
+// Load bookings when page opens
+loadBookings()
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Reservation Confirmed</title>
+
+<style>
+
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+padding-top:100px;
+}
+
+.box{
+background:#1c1c1c;
+display:inline-block;
+padding:40px;
+border-radius:10px;
+border:2px solid gold;
+}
+
+h1{
+color:gold;
+}
+
+p{
+font-size:18px;
+margin:10px 0;
+}
+
+button{
+padding:10px 20px;
+background:gold;
+border:none;
+cursor:pointer;
+margin-top:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>✅ Reservation Confirmed</h1>
+
+<p><b>Name:</b> <span id="name"></span></p>
+<p><b>Table:</b> <span id="table"></span></p>
+<p><b>Guests:</b> <span id="guests"></span></p>
+<p><b>Date:</b> <span id="date"></span></p>
+<p><b>Time:</b> <span id="time"></span></p>
+
+<button onclick="goHome()">Book Another Table</button>
+
+</div>
+
+<script>
+
+// read booking details from URL
+const params = new URLSearchParams(window.location.search)
+
+document.getElementById("name").textContent = params.get("name")
+document.getElementById("table").textContent = params.get("table")
+document.getElementById("guests").textContent = params.get("guests")
+document.getElementById("date").textContent = params.get("date")
+document.getElementById("time").textContent = params.get("time")
+
+function goHome(){
+window.location.href="booking.html"
+}
+
+</script>
+
+</body>
+</html>
